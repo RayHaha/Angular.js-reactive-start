@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormControl, Validators, FormArray } from '@angular/forms';
+import { Observable } from 'rxjs/Observable';
 
 @Component({
   selector: 'app-root',
@@ -19,8 +20,8 @@ export class AppComponent implements OnInit {
   ngOnInit(){
     this.signupForm = new FormGroup({
       'userData': new FormGroup({
-        'username': new FormControl(null, [Validators.required, this.forbiddenNames.bind(this)]),
-        'email': new FormControl(null, [Validators.required, Validators.email])
+        'username': new FormControl(null, [Validators.required, this.forbiddenNames.bind(this)]),/** make sure that the "this" is for this class */
+        'email': new FormControl(null, [Validators.required, Validators.email], this.forbiddenEmails)
       }),
       'gender': new FormControl('male'),
       'hobbies': new FormArray([])
@@ -48,5 +49,19 @@ export class AppComponent implements OnInit {
     return null;
     // if validation is successful, you need to pass nothing or null
     // this is how you tell Angular that the FormControl is valid
+  }
+
+  // asynchronous validator
+  forbiddenEmails(control: FormControl): Promise<any> | Observable<any>{
+    const promise = new Promise<any>((resolve, reject) => {
+      setTimeout(() => {
+        if(control.value === 'test@test.com'){
+          resolve({'emailForbidden': true});
+        }else{
+          resolve(null);
+        }
+      }, 1500);
+    });
+    return promise;
   }
 }
